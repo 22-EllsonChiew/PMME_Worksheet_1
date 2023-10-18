@@ -4,32 +4,51 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField]
-    private float speed;
-    private float walkSpeed;
-    private float sprintSpeed;
+   
+    private Vector3 moveDirection = Vector3.zero;
+    private bool isGrounded;
+    private float playerSpeed = 2.0f;
+    private float speed = 5f;
+    private float sprint = 15f;
 
+    public Animator anim;
 
-    float horizontalInput;
-    float verticalInput;
-
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        InputPlayer();
-    }
 
-    private void InputPlayer()
-    {
-        //capture if the player moving along both horizontal and verical
-        horizontalInput = Input.GetAxisRaw("Horizontal");
-        verticalInput = Input.GetAxisRaw("Vertical");
+
+        CharacterController controller = GetComponent<CharacterController>();
+
+       
+            //Feed moveDirection with input.
+            moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+
+        anim.SetFloat("Posx", moveDirection.x);
+
+            moveDirection = transform.TransformDirection(moveDirection);
+            moveDirection *= speed;
+        
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+
+            speed = sprint;
+
+        }
+        else
+        {
+            speed = 5f;
+        }
+
+
+        controller.Move(moveDirection * Time.deltaTime);
+
 
     }
+    
 }
