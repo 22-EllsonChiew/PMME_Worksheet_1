@@ -54,7 +54,10 @@ public class ThirdPersonCamera : MonoBehaviour
         {
             Vector3 targetPos = mPlayerTransform.position;
 
-            targetPos.y += GameConstants.CameraPositionOffset.y;
+            float playerHeight = mPlayerTransform.GetComponent<CharacterController>().height;
+            targetPos.y += playerHeight;
+
+            //targetPos.y += GameConstants.CameraPositionOffset.y;
             mCameraTransform.LookAt(targetPos);
         }
     }
@@ -74,7 +77,9 @@ public class ThirdPersonCamera : MonoBehaviour
         //mThirdPersonCamera = new TPCTrack(transform, mPlayer);
         //mThirdPersonCamera = new TPCFollowTrackPosition(transform, mPlayer);
 
-        mThirdPersonCamera = new TPCFollowTrackPositionAndRotation(transform, mPlayer);
+        //mThirdPersonCamera = new TPCFollowTrackPositionAndRotation(transform, mPlayer);
+
+        mThirdPersonCamera = new TPCTopDown(transform, mPlayer);
     }
 
     private void LateUpdate()
@@ -143,6 +148,27 @@ public class ThirdPersonCamera : MonoBehaviour
         }
     }
 
+    public class TPCTopDown : TPCBase
+    {
+        public TPCTopDown(Transform cameraTransform, Transform playerTransform) : base(cameraTransform, playerTransform)
+        {
 
-    
-}
+        }
+
+        public override void Update()
+        {
+            Vector3 targetPos = mPlayerTransform.position;
+
+            //offset for the desired position of the camera with y axis * the height
+            Vector3 desiredPosition = targetPos + new Vector3(0, GameConstants.CameraPositionOffset.y * 4f, 0);
+
+            
+            mCameraTransform.position = Vector3.Lerp(mCameraTransform.position, desiredPosition, Time.deltaTime * GameConstants.Damping);
+
+            //rotate the camera to look down 90 degree
+            Quaternion targetRotation = Quaternion.Euler(90, 0, 0);
+            mCameraTransform.rotation = Quaternion.Lerp(mCameraTransform.rotation, targetRotation, Time.deltaTime * GameConstants.Damping);
+        }
+    }
+
+ }
